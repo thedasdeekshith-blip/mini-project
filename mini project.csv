@@ -1,0 +1,32 @@
+Python 3.14.3 (tags/v3.14.3:323c59a, Feb  3 2026, 16:04:56) [MSC v.1944 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+...     # Ensure numeric columns are strictly integers
+...     # errors='coerce' would handle non-numeric strings if they existed
+...     df['score'] = df['score'].astype(int)
+...     df['num_comments'] = df['num_comments'].astype(int)
+...
+...     # Filter out low quality stories (score < 5)
+...     df = df[df['score'] >= 5]
+...     print(f"After removing low scores: {len(df)}")
+...
+...     # Clean up the text by stripping leading/trailing whitespace
+...     df['title'] = df['title'].str.strip()
+...
+...     # 3. Save as CSV
+...     output_path = 'data/trends_clean.csv'
+...
+...     # Ensure the data directory exists before saving
+...     os.makedirs('data', exist_ok=True)
+...
+...     # Save to CSV without the index column to keep the file tidy
+...     df.to_csv(output_path, index=False)
+...
+...     print(f"Saved {len(df)} rows to {output_path}")
+...
+...     # Print summary of stories per category
+...     print("\nStories per category:")
+...     print(df['category'].value_counts())
+...
+... if __name__ == "__main__":
+...     process_trend_data()
+...
