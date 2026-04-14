@@ -1,0 +1,112 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+
+def run_visualizations():
+    # --- Task 1: Setup ---
+    # Loading the specific analysed file from your previous task
+    ->"C:\Users\herot\OneDrive\Documents\mini project.json" = 'data/mini project_analysed.csv'
+    
+    if not os.path.exists(->"C:\Users\herot\OneDrive\Documents\mini project.json"):
+        print(f"Error: {->"C:\Users\herot\OneDrive\Documents\mini project.json"} not found. Ensure Task 3 saved the file correctly.")
+        return
+    
+    df = pd.read_csv(->"C:\Users\herot\OneDrive\Documents\mini project.json")
+
+    # Create outputs folder if it doesn't exist
+    if not os.path.exists('outputs'):
+        os.makedirs('outputs')
+    
+    # Use a clean, modern style for the charts
+    plt.style.use('seaborn-v0_8-muted') 
+
+    # --- Task 2: Chart 1 - Top 10 Stories by Score ---
+    plt.figure(figsize=(12, 7))
+    # Sort by score and take the top 10
+    top_10 = df.sort_values(by='score', ascending=False).head(10)
+    
+    # Logic: Shorten titles longer than 50 characters for a cleaner Y-axis
+    display_titles = [t[:47] + "..." if len(str(t)) > 50 else t for t in top_10['title']]
+    
+    plt.barh(display_titles, top_10['score'], color='teal')
+    plt.gca().invert_yaxis()  # Highest score at the top
+    plt.title('Top 10 Trending Stories (by Score)', fontsize=14)
+    plt.xlabel('Upvote Score')
+    plt.ylabel('Post Title')
+    plt.tight_layout()
+    plt.savefig('outputs/chart1_top_stories.png')
+    plt.close()
+
+    # --- Task 3: Chart 2 - Stories per Category ---
+    plt.figure(figsize=(10, 6))
+    cat_counts = df['category'].value_counts()
+    
+    # Logic: Assign unique colors to each category bar
+    colors = plt.cm.viridis(np.linspace(0, 1, len(cat_counts)))
+    
+    cat_counts.plot(kind='bar', color=colors)
+    plt.title('Volume of Content per Category', fontsize=14)
+    plt.xlabel('Category')
+    plt.ylabel('Number of Stories')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.savefig('outputs/chart2_categories.png')
+    plt.close()
+
+    # --- Task 4: Chart 3 - Score vs Comments ---
+    plt.figure(figsize=(10, 6))
+    
+    # Logic: Filter the DataFrame based on the 'is_popular' column created in Task 3
+    pop_mask = df['is_popular'] == True
+    
+    # Plot non-popular stories in gray, popular in a standout color
+    plt.scatter(df[~pop_mask]['score'], df[~pop_mask]['num_comments'], 
+                alpha=0.4, c='gray', label='Standard')
+    plt.scatter(df[pop_mask]['score'], df[pop_mask]['num_comments'], 
+                alpha=0.7, c='crimson', label='Popular (Above Avg)')
+    
+    plt.title('Engagement Analysis: Score vs. Comments', fontsize=14)
+    plt.xlabel('Score')
+    plt.ylabel('Number of Comments')
+    plt.legend()
+    plt.grid(True, linestyle='--', alpha=0.6)
+    plt.tight_layout()
+    plt.savefig('outputs/chart3_scatter.png')
+    plt.close()
+
+    # --- Bonus: Dashboard ---
+    # Create a layout with 2 rows and 2 columns
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+    fig.suptitle('TrendPulse Data Analytics Dashboard', fontsize=22, fontweight='bold')
+
+    # Subplot 1: Horizontal Bar
+    axes[0, 0].barh(display_titles, top_10['score'], color='teal')
+    axes[0, 0].invert_yaxis()
+    axes[0, 0].set_title('Top 10 Stories')
+
+    # Subplot 2: Category Bar
+    axes[0, 1].bar(cat_counts.index, cat_counts.values, color=colors)
+    axes[0, 1].set_title('Category Distribution')
+    axes[0, 1].tick_params(axis='x', rotation=30)
+
+    # Subplot 3: Scatter Plot
+    axes[1, 0].scatter(df[~pop_mask]['score'], df[~pop_mask]['num_comments'], alpha=0.3, c='gray')
+    axes[1, 0].scatter(df[pop_mask]['score'], df[pop_mask]['num_comments'], alpha=0.6, c='crimson')
+    axes[1, 0].set_title('Score vs. Comments Correlation')
+    axes[1, 0].set_xlabel('Score')
+    axes[1, 0].set_ylabel('Comments')
+
+    # Subplot 4: Clean up (Hide the empty plot)
+    axes[1, 1].axis('off')
+    # Add a small text summary in the empty space
+    axes[1, 1].text(0.1, 0.5, f"Total Stories: {len(df)}\nAvg Score: {df['score'].mean():.0f}", 
+                    fontsize=14, style='italic')
+
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    plt.savefig('outputs/dashboard.png')
+    
+    print("Visualizations complete. Check the 'outputs/' folder for your PNG files.")
+
+if __name__ == "__main__":
+    import numpy as np # Added local import for the color mapping logic
+    run_visualizations()
