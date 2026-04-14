@@ -1,0 +1,69 @@
+import pandas as pd
+import numpy as np
+
+def run_analysis():
+    # --- Task 1: Load and Explore ---
+    try:
+        # Loading the specific file name provided
+        # Ensure 'mini project.csv' is inside the 'data/' folder
+        df = pd.read_csv('data/mini project.csv')
+    except FileNotFoundError:
+        print("Error: data/mini project.csv not found. Please check the file name.")
+        return
+
+    print(f"Loaded data: {df.shape}")
+    print("\nFirst 5 rows:")
+    print(df.head())
+
+    # Calculating averages using Pandas
+    avg_score = df['score'].mean()
+    avg_comments = df['num_comments'].mean()
+
+    print(f"\nAverage score   : {avg_score:,.0f}")
+    print(f"Average comments: {avg_comments:,.0f}")
+
+    print("\n--- NumPy Stats ---")
+
+    # --- Task 2: Basic Analysis with NumPy ---
+    # Converting score series to a NumPy array for calculations
+    scores = df['score'].to_numpy()
+    
+    mean_score = np.mean(scores)
+    median_score = np.median(scores)
+    std_score = np.std(scores)
+    max_score = np.max(scores)
+    min_score = np.min(scores)
+
+    print(f"Mean score   : {mean_score:,.0f}")
+    print(f"Median score : {median_score:,.0f}")
+    print(f"Std deviation: {std_score:,.0f}")
+    print(f"Max score    : {max_score:,.0f}")
+    print(f"Min score    : {min_score}")
+
+    # Finding category with most stories
+    top_category = df['category'].value_counts().idxmax()
+    category_count = df['category'].value_counts().max()
+    print(f"Most stories in: {top_category} ({category_count} stories)")
+
+    # Finding the most commented story
+    idx_max_comments = df['num_comments'].idxmax()
+    most_commented_title = df.loc[idx_max_comments, 'title']
+    most_commented_count = df.loc[idx_max_comments, 'num_comments']
+    print(f"Most commented story: \"{most_commented_title}\" — {most_commented_count:,} comments")
+
+    # --- Task 3: Add New Columns ---
+    # Engagement calculation (adding 1 to prevent division by zero)
+    df['engagement'] = df['num_comments'] / (df['score'] + 1)
+
+    # Boolean flag for popularity based on the average
+    df['is_popular'] = df['score'] > avg_score
+
+    # --- Task 4: Save the Result ---
+    # Saving with a new name to distinguish it from the raw data
+    output_path = 'data/mini project_analysed.csv'
+    df.to_csv(output_path, index=False)
+    
+    print(f"\nSaved updated data to {output_path}")
+
+if __name__ == "__main__":
+    run_analysis()
